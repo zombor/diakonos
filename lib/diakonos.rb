@@ -292,19 +292,23 @@ module Diakonos
     def start
       require 'diakonos/window'
 
-      @files.each do |file|
-        @buffers << Buffer.new( file )
-      end
-      @files = []
-      @read_only_files.each do |file|
-        @buffers << Buffer.new( file )
-      end
-      if ! @testing
-        session_buffers = session_startup
-      end
-      session_buffer_number = @session[ 'buffer_current' ] || 1
-      @files.each do |file_info|
-        @buffers << Buffer.new( file_info )
+      if ! $stdin.tty?
+        @buffers << Buffer.new( {buffer_text: $stdin} )
+      else
+        @files.each do |file|
+          @buffers << Buffer.new( file )
+        end
+        @files = []
+        @read_only_files.each do |file|
+          @buffers << Buffer.new( file )
+        end
+        if ! @testing
+          session_buffers = session_startup
+        end
+        session_buffer_number = @session[ 'buffer_current' ] || 1
+        @files.each do |file_info|
+          @buffers << Buffer.new( file_info )
+        end
       end
       if @buffers.empty?
         @buffers << Buffer.new

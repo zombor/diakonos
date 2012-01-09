@@ -32,6 +32,8 @@ module Diakonos
     # @param [Hash] options
     # @option options [String] 'filepath'
     #   A file path (which is expanded internally)
+    # @option options [IO] 'buffer_text'
+    #   A raw IO object to fill the buffer with
     # @option options [Boolean] 'read_only' (READ_WRITE)
     #   Whether the buffer should be protected from modification
     # @option options [Hash] 'cursor'
@@ -44,12 +46,16 @@ module Diakonos
     # @see READ_ONLY
     def initialize( options = {} )
       @name = options[ 'filepath' ]
+      buffer_text = options[ :buffer_text ]
       @modified = false
       @last_modification_check = Time.now
 
       @buffer_states = Array.new
       @cursor_states = Array.new
-      if @name.nil?
+
+      if ! buffer_text.nil?
+        @lines = buffer_text.readlines
+      elsif @name.nil?
         @lines = Array.new
         @lines[ 0 ] = ""
       else
